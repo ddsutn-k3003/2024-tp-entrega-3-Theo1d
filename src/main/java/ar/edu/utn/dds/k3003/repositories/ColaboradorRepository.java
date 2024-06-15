@@ -7,56 +7,62 @@ import ar.edu.utn.dds.k3003.facades.dtos.FormaDeColaborarEnum;
 import ar.edu.utn.dds.k3003.model.Colaborador;
 import ar.edu.utn.dds.k3003.model.PesosPuntos;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import static ar.edu.utn.dds.k3003.facades.dtos.FormaDeColaborarEnum.TRANSPORTADOR;
 
 public class ColaboradorRepository {
 
-    private PesosPuntos pesosPuntos=null;
-    private EntityManager entityManager ;
-
-    public ColaboradorRepository(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    private PesosPuntos pesosPuntos;
+    private EntityManagerFactory entityManagerFactory ;
+    public ColaboradorRepository(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     public Colaborador save(Colaborador colaborador) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.persist(colaborador);
         entityManager.getTransaction().commit();
-
+        entityManager.close();
         return colaborador;
     }
 
     public Colaborador findById(Long id) throws NoSuchElementException{
-        return this.entityManager.find(Colaborador.class, id);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        Colaborador colaborador= entityManager.find(Colaborador.class, id);
+        entityManager.close();
+        return colaborador;
     }
 
     public Colaborador cambiarFormas(Long id, List<FormaDeColaborarEnum> list) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         Colaborador colaborador= entityManager.find(Colaborador.class, id);
         colaborador.setFormas(list);
         entityManager.getTransaction().commit();
+        entityManager.close();
         return colaborador;
     }
     public Collection<Colaborador> getColaboradores() {return null;}
 
     public void borrarRepository() {
-
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
         try{
-            entityManager.getTransaction().begin();
-            entityManager.createQuery("DELETE FROM Colaborador ");
-            entityManager.getTransaction().commit();
-        }
-        catch (RuntimeException e){
-            if(entityManager.getTransaction().isActive()) entityManager.getTransaction().rollback();
+            em.createQuery("DELETE FROM Colaborador").executeUpdate();
+            em.createNativeQuery("ALTER SEQUENCE colaborador_id_seq RESTART WITH 1").executeUpdate();
+            em.getTransaction().commit();
+        }catch(RuntimeException e){
+            if(em.getTransaction().isActive()) em.getTransaction().rollback();
             throw e;
+        } finally{
+            em.close();
         }
-
-      //  entityManager.clear();
     }
 
     public void actualizarPesosPuntos(PesosPuntos pesosPuntos){
-
+        this.pesosPuntos=pesosPuntos;
 
         /*try
         {

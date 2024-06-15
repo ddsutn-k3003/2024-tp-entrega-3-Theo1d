@@ -19,18 +19,16 @@ import java.util.NoSuchElementException;
 public class ColaboradorController {
 
   private final Fachada fachada;
-  private final EntityManagerFactory entityManagerFactory;
-  public ColaboradorController(Fachada fachada, EntityManagerFactory entityManagerFactory) {
-    this.entityManagerFactory=entityManagerFactory;
+  public ColaboradorController(Fachada fachada) {
     this.fachada = fachada;
   }
 
   public void agregar(Context context) {
     try {
       ColaboradorDTO colaboradorDTORta = this.fachada.agregar(context.bodyAsClass(ColaboradorDTO.class));
-      //context.json(colaboradorDTORta);
+      context.json(colaboradorDTORta);
       context.status(HttpStatus.CREATED);
-      context.result("Colaborador agregado");
+     // context.result("Colaborador agregado");
     } catch (NoSuchElementException e) {
       context.result(e.getLocalizedMessage());
       context.status(HttpStatus.BAD_REQUEST);
@@ -92,17 +90,8 @@ public class ColaboradorController {
   }
 
   public void clean(Context context) {
-    EntityManager em = entityManagerFactory.createEntityManager();
-    em.getTransaction().begin();
-    try{
-      em.createQuery("DELETE FROM Colaborador").executeUpdate();
-      em.getTransaction().commit();
-    }catch(RuntimeException e){
-      if(em.getTransaction().isActive()) em.getTransaction().rollback();
-      throw e;
-    } finally{
-      em.close();
-    }
+    fachada.borrarDB();
   }
 
 }
+

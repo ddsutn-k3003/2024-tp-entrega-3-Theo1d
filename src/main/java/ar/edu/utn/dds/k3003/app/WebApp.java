@@ -24,10 +24,7 @@ import static ar.edu.utn.dds.k3003.facades.dtos.FormaDeColaborarEnum.TRANSPORTAD
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class WebApp {
-    public static EntityManagerFactory entityManagerFactory;
     public static void main(String[] args) {
-        startEntityManagerFactory();
-        EntityManager entityManager= entityManagerFactory.createEntityManager();
         var env = System.getenv();
 
         // Variables de entorno
@@ -37,14 +34,14 @@ public class WebApp {
         var URL_COLABORADORES = env.get("URL_COLABORADORES");
 
         ObjectMapper objectMapper = createObjectMapper();
-        var fachada = new Fachada(entityManager);
+        var fachada = new Fachada();
 
 
         var port = Integer.parseInt(env.getOrDefault("PORT", "8080"));
 
         fachada.setLogisticaProxy(new LogisticaProxy(objectMapper));
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
-        var colaboradorController = new ColaboradorController(fachada,entityManagerFactory);
+        var colaboradorController = new ColaboradorController(fachada);
 
         var app = Javalin.create(config -> {
             config.jsonMapper(new JavalinJackson().updateMapper(WebApp::configureObjectMapper));
@@ -58,22 +55,6 @@ public class WebApp {
         app.get("/colaboradores/{id}/puntos", colaboradorController::obtenerPuntos);
         app.put("/formula", colaboradorController::actualizarPesosPuntos);
         app.delete("/clear",colaboradorController::clean);
-    }
-
-    public static void startEntityManagerFactory() {
-// https://stackoverflow.com/questions/8836834/read-environment-variables-in-persistence-xml-file
-        Map<String, String> env = System.getenv();
-        Map<String, Object> configOverrides = new HashMap<String, Object>();
-        String[] keys = new String[] { "javax.persistence.jdbc.url", "javax.persistence.jdbc.user",
-                "javax.persistence.jdbc.password", "javax.persistence.jdbc.driver", "hibernate.hbm2ddl.auto",
-                "hibernate.connection.pool_size", "hibernate.show_sql" };
-        for (String key : keys) {
-            if (env.containsKey(key)) {
-                String value = env.get(key);
-                configOverrides.put(key, value);
-            }
-        }
-        entityManagerFactory = Persistence.createEntityManagerFactory("db", configOverrides);
     }
 
     public static ObjectMapper createObjectMapper() {

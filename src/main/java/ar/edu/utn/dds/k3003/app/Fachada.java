@@ -1,7 +1,9 @@
 package ar.edu.utn.dds.k3003.app;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import ar.edu.utn.dds.k3003.facades.FachadaColaboradores;
@@ -17,6 +19,8 @@ import ar.edu.utn.dds.k3003.repositories.ColaboradorRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 
 public class Fachada implements FachadaColaboradores {
 
@@ -25,9 +29,13 @@ public class Fachada implements FachadaColaboradores {
     private FachadaLogistica logisticaFachada;
     private FachadaViandas viandasFachada;
     final LocalDateTime now = LocalDateTime.now();
+    public static EntityManagerFactory entityManagerFactory;
 
-    public  Fachada(EntityManager entityManager) {     //pónerle void?
-        this.colaboradorRepository =new ColaboradorRepository(entityManager);
+
+    public  Fachada() {     //pónerle void?
+        startEntityManagerFactory();
+        EntityManager entityManager= entityManagerFactory.createEntityManager();
+        this.colaboradorRepository =new ColaboradorRepository(entityManagerFactory);
         this.colaboradorMapper=new ColaboradorMapper();
     }
 
@@ -41,7 +49,7 @@ public class Fachada implements FachadaColaboradores {
     }
 
     @Override
-    public void actualizarPesosPuntos(Double pesosDonados, Double viandas_Distribuidas, Double viandasDonadas,
+    public void actualizarPesosPuntos(Double viandas_Distribuidas, Double viandasDonadas,Double pesosDonados,
                                       Double tarjetasRepartidas, Double heladerasActivas) throws ErrorConParametrosException {
     this.colaboradorRepository.actualizarPesosPuntos(new PesosPuntos(pesosDonados,viandas_Distribuidas,viandasDonadas,tarjetasRepartidas,heladerasActivas));
     }
@@ -80,4 +88,20 @@ public class Fachada implements FachadaColaboradores {
     public void borrarDB() {
         colaboradorRepository.borrarRepository();
     }
+    public static void startEntityManagerFactory() {
+// https://stackoverflow.com/questions/8836834/read-environment-variables-in-persistence-xml-file
+        Map<String, String> env = System.getenv();
+        Map<String, Object> configOverrides = new HashMap<String, Object>();
+        String[] keys = new String[] { "javax.persistence.jdbc.url", "javax.persistence.jdbc.user",
+                "javax.persistence.jdbc.password", "javax.persistence.jdbc.driver", "hibernate.hbm2ddl.auto",
+                "hibernate.connection.pool_size", "hibernate.show_sql" };
+        for (String key : keys) {
+            if (env.containsKey(key)) {
+                String value = env.get(key);
+                configOverrides.put(key, value);
+            }
+        }
+        entityManagerFactory = Persistence.createEntityManagerFactory("db", configOverrides);
+    }
 }
+

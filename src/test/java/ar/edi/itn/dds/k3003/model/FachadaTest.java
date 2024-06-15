@@ -2,11 +2,14 @@ package ar.edi.itn.dds.k3003.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import ar.edu.utn.dds.k3003.Evaluador;
+import ar.edu.utn.dds.k3003.EvaluadorAPI;
 import ar.edu.utn.dds.k3003.facades.FachadaColaboradores;
 import ar.edu.utn.dds.k3003.facades.FachadaLogistica;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
 import ar.edu.utn.dds.k3003.tests.TestTP;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +19,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -105,4 +113,41 @@ public class FachadaTest implements TestTP<FachadaColaboradores> {
     public Class<FachadaColaboradores> clase() {
         return FachadaColaboradores.class;
     }
+
+    @Test
+    void testAPIColaborador() throws Throwable {
+        try {
+            ObjectMapper mapper = Evaluador.createObjectMapper();
+            HttpClient client = HttpClient.newHttpClient();
+            ColaboradorDTO donadorDTO = new ColaboradorDTO("pepe", List.of(FormaDeColaborarEnum.DONADOR));
+            HttpRequest request = this.createRequest("/colaboradores").POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(donadorDTO))).build();
+            HttpResponse<String> send = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (200 > send.statusCode() || send.statusCode() > 300) {
+                System.err.println(String.format("Error %s : %s ", send.statusCode(), send.body()));
+                Assertions.fail();
+            }
+
+            ColaboradorDTO donador = (ColaboradorDTO)mapper.readValue((String)send.body(), ColaboradorDTO.class);
+            HttpRequest request2 = this.createRequest("/colaboradores/" + donador.getId().toString()).GET().build();
+            HttpResponse<String> send2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+            if (200 > send2.statusCode() || send2.statusCode() > 300) {
+                System.err.println(String.format("Error %s : %s ", send2.statusCode(), send2.body()));
+                Assertions.fail();
+            }
+
+            ColaboradorDTO donador2 = (ColaboradorDTO)mapper.readValue((String)send2.body(), ColaboradorDTO.class);
+            Assertions.assertEquals(donador, donador2, "El colaborador creada con el POST no es igual al recuperado con el GET");
+        } catch (Throwable var10) {
+            Throwable $ex = var10;
+            throw $ex;
+        }
+    }
+
+    private HttpRequest.Builder createRequest(String path) throws URISyntaxException {
+        String baseUrl = "http://localhost:8080";
+        String urlCompleta = baseUrl + path;
+        System.err.println("Creando request a: " + urlCompleta);
+        return HttpRequest.newBuilder().uri(new URI(urlCompleta));
+    }
+
 }
