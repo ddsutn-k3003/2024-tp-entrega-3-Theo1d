@@ -53,7 +53,7 @@ public class ColaboradorController {
 
   public void modificarColaboracion(Context context) {
     Long id = context.pathParamAsClass("id", Long.class).get();
-    FormaDeColaborarEnum[] list = context.bodyAsClass(FormaDeColaborarEnum[].class);//esta bien esto?
+     List<FormaDeColaborarEnum> list = context.bodyAsClass(List<FormaDeColaborarEnum>.class).getFormas();
     try {
       ColaboradorDTO colaboradorDTORta = this.fachada.modificar(id, List.of(list));//CUIDADO SI LE AGREGAMOS FUNCONABILIDAD A FORMADECOLABORARENUM
       context.json(colaboradorDTORta);
