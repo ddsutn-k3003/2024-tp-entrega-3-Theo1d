@@ -63,7 +63,7 @@ public class Fachada implements FachadaColaboradores {
             puntos= pesoViandasDon * this.viandasFachada.viandasDeColaborador(colaboradorId, 5, 2024).size();
 
             Double pesoViandasDist=colaboradorRepository.getViandas_Distribuidas();
-            puntos+= pesoViandasDist * this.logisticaFachada.trasladosDeColaborador(colaboradorId,5 , 2024).size();
+            puntos+= pesoViandasDist * this.logisticaFachada.trasladosDeColaborador(colaboradorId, 1 , 2024).size();
       //  }
         return puntos;
     }
