@@ -53,7 +53,6 @@ public class ViandasProxy implements FachadaViandas {
         Response<List<ViandaDTO>> execute = service.getViandas(id, mes, anio).execute();
         if (execute.isSuccessful()) {
             return execute.body();
-      return respuesta;
     }
     if (execute.code() == HttpStatus.NOT_FOUND.getCode()) {
       throw new NoSuchElementException("No se encontraron viandas");
