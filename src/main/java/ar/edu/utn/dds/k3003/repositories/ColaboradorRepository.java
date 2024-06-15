@@ -3,56 +3,94 @@ package ar.edu.utn.dds.k3003.repositories;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import ar.edu.utn.dds.k3003.facades.dtos.FormaDeColaborarEnum;
 import ar.edu.utn.dds.k3003.model.Colaborador;
+import ar.edu.utn.dds.k3003.model.PesosPuntos;
+import javax.persistence.EntityManager;
+
+import static ar.edu.utn.dds.k3003.facades.dtos.FormaDeColaborarEnum.TRANSPORTADOR;
 
 public class ColaboradorRepository {
 
-    public Collection<Colaborador> colaboradores=new ArrayList<>();
-    private static AtomicLong seqId = new AtomicLong(); // empieza en 0
-    private Double pesosDonados;
-    private Double viandas_Distribuidas;
-    private Double viandasDonadas;
-    private Double tarjetasRepartidas;
-    private Double heladerasActivas;
+    private PesosPuntos pesosPuntos=null;
+    private EntityManager entityManager ;
 
-    public ColaboradorRepository() {
-
+    public ColaboradorRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     public Colaborador save(Colaborador colaborador) {
-        if (Objects.isNull(colaborador.getId())) {
-            colaborador.setId(seqId.getAndIncrement());
-        }
-        this.colaboradores.add(colaborador);
+        entityManager.getTransaction().begin();
+        entityManager.persist(colaborador);
+        entityManager.getTransaction().commit();
+
         return colaborador;
     }
 
     public Colaborador findById(Long id) throws NoSuchElementException{
-        Optional<Colaborador> first = this.colaboradores.stream().filter(x -> x.getId().equals(id)).findFirst();
-        return first
-                .orElseThrow(() -> new NoSuchElementException(String.format("no hay un colaborador de id: %s", id)));
+        return this.entityManager.find(Colaborador.class, id);
     }
-    public void actualizarPesosPuntos(Double pesosDonados, Double viandas_Distribuidas, Double viandasDonadas,Double tarjetasRepartidas, Double heladerasActivas){
-        this.pesosDonados=pesosDonados;
-        this.viandas_Distribuidas=viandas_Distribuidas;
-        this.viandasDonadas=viandasDonadas;
-        this.tarjetasRepartidas=tarjetasRepartidas;
-        this.heladerasActivas=heladerasActivas;
+
+    public Colaborador cambiarFormas(Long id, List<FormaDeColaborarEnum> list) {
+        entityManager.getTransaction().begin();
+        Colaborador colaborador= entityManager.find(Colaborador.class, id);
+        colaborador.setFormas(list);
+        entityManager.getTransaction().commit();
+        return colaborador;
     }
+    public Collection<Colaborador> getColaboradores() {return null;}
+
+    public void borrarRepository() {
+
+        try{
+            entityManager.getTransaction().begin();
+            entityManager.createQuery("DELETE FROM Colaborador ");
+            entityManager.getTransaction().commit();
+        }
+        catch (RuntimeException e){
+            if(entityManager.getTransaction().isActive()) entityManager.getTransaction().rollback();
+            throw e;
+        }
+
+      //  entityManager.clear();
+    }
+
+    public void actualizarPesosPuntos(PesosPuntos pesosPuntos){
+
+
+        /*try
+        {
+        PesosPuntos pesosPuntos0=entityManager.find(PesosPuntos.class,1L);
+        pesosPuntos0=pesosPuntos;
+        }
+        catch (Exception e) {
+            entityManager.persist(pesosPuntos);
+        }
+            entityManager.getTransaction().commit();*/
+    }
+
     public Double getPesosDonados() {
-        return this.pesosDonados;
+       // PesosPuntos pesosPuntos = entityManager.find(PesosPuntos.class,1);
+        return pesosPuntos.getPesosDonados();
     }
     public Double getViandas_Distribuidas() {
-        return this.viandas_Distribuidas;
+
+      //  PesosPuntos pesosPuntos = entityManager.find(PesosPuntos.class,1);
+        return pesosPuntos.getViandas_Distribuidas();
     }
     public Double getViandasDonadas() {
-        return this.viandasDonadas;
+
+   //     PesosPuntos pesosPuntos = entityManager.find(PesosPuntos.class,1);
+        return pesosPuntos.getViandasDonadas();
     }
     public Double getTarjetasRepartidas() {
-        return this.tarjetasRepartidas;
+
+     //   PesosPuntos pesosPuntos = entityManager.find(PesosPuntos.class,1);
+        return pesosPuntos.getTarjetasRepartidas();
     }
+
     public Double getHeladerasActivas() {
-        return this.heladerasActivas;
+    //    PesosPuntos pesosPuntos = entityManager.find(PesosPuntos.class,1);
+        return pesosPuntos.getHeladerasActivas();
     }
-    public Collection<Colaborador> getColaboradores() {return this.colaboradores;}
 }

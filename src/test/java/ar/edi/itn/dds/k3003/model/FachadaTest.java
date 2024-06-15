@@ -39,6 +39,20 @@ public class FachadaTest implements TestTP<FachadaColaboradores> {
             this.instancia.setLogisticaProxy(this.fachadaLogistica);
             this.instancia.setViandasProxy(this.fachadaViandas);
     }
+/*
+    @Test
+    @DisplayName("TestConverter")
+    void testConverterEnum(){
+
+
+        FormaDeColaborarEnum2 forma2 = FormaDeColaborarEnum2.TRANSPORTADORSQL;
+        FormaDeColaborarEnum formaNueva=ConverterLocal.convertirAFormaDeColaborarEnum(forma2);
+        Assertions.assertEquals(formaNueva,FormaDeColaborarEnum.TRANSPORTADOR);
+
+        FormaDeColaborarEnum forma = FormaDeColaborarEnum.TRANSPORTADOR;
+        FormaDeColaborarEnum2 formaNueva2=ConverterLocal.convertirAFormaDeColaborarEnum2(forma);
+        Assertions.assertEquals(formaNueva2,FormaDeColaborarEnum2.TRANSPORTADORSQL);
+    }*/
 
     @Test
     @DisplayName("Agregar y buscar colaborador")

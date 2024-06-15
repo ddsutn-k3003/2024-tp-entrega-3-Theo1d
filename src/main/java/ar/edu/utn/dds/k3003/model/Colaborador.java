@@ -14,16 +14,23 @@ import javax.persistence.*;
 @Table(name="colaborador")
 public class Colaborador {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Es como el id de las tarjetas
-    @Column
+    @Column (name = "nombre")
     private String nombre;
-    @ManyToMany(cascade=CascadeType.ALL,fetch = FetchType.LAZY)
+/*
+    @ElementCollection(targetClass = FormaDeColaborarEnum.class)
+    @Enumerated(EnumType.STRING) // Puedes usar EnumType.ORDINAL si prefieres almacenar índices
+    @CollectionTable(name = "colaborador_formas_de_colaborar", joinColumns = @JoinColumn(name = "colaborador_id"))
+    @Column(name = "forma_de_colaborar")*/
+    @Column(name="formas")
+    @Convert(converter = ConversorFormasDeColaborar.class)
     private List<FormaDeColaborarEnum> formas;
 
     // private Long tarjetasRepartidas; En teoria no se usa esta entrega
     // private Long pesosDonados;
-
+    public Colaborador(){}
     public Colaborador(Long id, String nombre,List<FormaDeColaborarEnum> list) {
         this.id = id;
         this.nombre = nombre;
@@ -42,9 +49,9 @@ public class Colaborador {
         this.formas = list;
     }
 
-    public List<FormaDeColaborarEnum> getFormas() {return this.formas;}
-
     public Long getId() {return this.id;}
+
+    public List<FormaDeColaborarEnum> getFormas() {return this.formas;}
 
     public String getNombre() {
         return this.nombre;
