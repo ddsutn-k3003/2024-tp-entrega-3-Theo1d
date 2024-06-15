@@ -54,12 +54,10 @@ public class LogisticaProxy implements FachadaLogistica {
     @SneakyThrows
     @Override
     public List<TrasladoDTO> trasladosDeColaborador(Long id, Integer mes, Integer anio) throws NoSuchElementException{
+        
         Response<List<TrasladoDTO>> execute = service.getTraslados(id, mes, anio).execute();
         if (execute.isSuccessful()) {
-            var trasladoPrueba=new TrasladoDTO(null,null,null,null,null);
-            List<TrasladoDTO> respuesta =new ArrayList<>();
-            respuesta.add(trasladoPrueba);
-            return respuesta;
+            return execute.body();
         }
         if (execute.code() == HttpStatus.NOT_FOUND.getCode()) {
             throw new NoSuchElementException("No se encontraron traslados");
