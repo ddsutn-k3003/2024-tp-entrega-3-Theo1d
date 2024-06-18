@@ -1,4 +1,3 @@
-
 package ar.edu.utn.dds.k3003.clients;
 
 import ar.edu.utn.dds.k3003.facades.FachadaHeladeras;
@@ -9,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import lombok.SneakyThrows;
@@ -22,9 +22,8 @@ public class ViandasProxy implements FachadaViandas {
   private final ViandasRetrofitClient service;
 
   public ViandasProxy(ObjectMapper objectMapper) {
-
     var env = System.getenv();
-    this.endpoint = env.getOrDefault("URL_VIANDAS", "http://localhost:8081/");
+    this.endpoint = env.getOrDefault("URL_VIANDAS", "localhost:8081");
 
     var retrofit =
             new Retrofit.Builder()
@@ -50,8 +49,13 @@ public class ViandasProxy implements FachadaViandas {
   @SneakyThrows
   @Override
   public List<ViandaDTO> viandasDeColaborador(Long id, Integer mes, Integer anio) throws NoSuchElementException {
-        Response<List<ViandaDTO>> execute = service.getViandas(id, mes, anio).execute();
-        if (execute.isSuccessful()) {
+      Response<List<ViandaDTO>> execute = null;
+      try {
+          execute = service.getViandas(id, mes, anio).execute();
+      } catch (IOException e) {
+          throw new RuntimeException(e);
+      }
+      if (execute.isSuccessful()) {
             return execute.body();
     }
     if (execute.code() == HttpStatus.NOT_FOUND.getCode()) {

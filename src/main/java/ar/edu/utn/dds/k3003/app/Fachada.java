@@ -49,7 +49,7 @@ public class Fachada implements FachadaColaboradores {
     }
 
     @Override
-    public void actualizarPesosPuntos(Double viandas_Distribuidas, Double viandasDonadas,Double pesosDonados,
+    public void actualizarPesosPuntos(Double pesosDonados,Double viandas_Distribuidas, Double viandasDonadas,
                                       Double tarjetasRepartidas, Double heladerasActivas) throws ErrorConParametrosException {
     this.colaboradorRepository.actualizarPesosPuntos(new PesosPuntos(pesosDonados,viandas_Distribuidas,viandasDonadas,tarjetasRepartidas,heladerasActivas));
     }
@@ -59,8 +59,8 @@ public class Fachada implements FachadaColaboradores {
         Double puntos = 0.0;
         Colaborador colaborador = colaboradorRepository.findById(colaboradorId);
 
-         //   Double pesoViandasDon=colaboradorRepository.getViandasDonadas();
-         //   puntos= pesoViandasDon * this.viandasFachada.viandasDeColaborador(colaboradorId, 1, 2024).size();
+            Double pesoViandasDon=colaboradorRepository.getViandasDonadas();
+            puntos= pesoViandasDon * this.viandasFachada.viandasDeColaborador(colaboradorId, 1, 2024).size();
 
             Double pesoViandasDist=colaboradorRepository.getViandas_Distribuidas();
             puntos+= pesoViandasDist * this.logisticaFachada.trasladosDeColaborador(colaboradorId, 1 , 2024).size();

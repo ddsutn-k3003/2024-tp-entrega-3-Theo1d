@@ -14,6 +14,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,7 +26,7 @@ public class LogisticaProxy implements FachadaLogistica {
 
     public LogisticaProxy(ObjectMapper objectMapper) {
         var env = System.getenv();
-        this.endpoint = env.getOrDefault("URL_LOGISTICA", "http://localhost:8082/");
+        this.endpoint = env.getOrDefault("URL_LOGISTICA", "localhost:8082"); //CUIDADO
 
         var retrofit =
                 new Retrofit.Builder()
@@ -54,8 +55,13 @@ public class LogisticaProxy implements FachadaLogistica {
     @SneakyThrows
     @Override
     public List<TrasladoDTO> trasladosDeColaborador(Long id, Integer mes, Integer anio) throws NoSuchElementException{
-        
-        Response<List<TrasladoDTO>> execute = service.getTraslados(id, mes, anio).execute();
+
+        Response<List<TrasladoDTO>> execute = null;
+        try {
+            execute = service.getTraslados(id, mes, anio).execute();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (execute.isSuccessful()) {
             return execute.body();
         }
