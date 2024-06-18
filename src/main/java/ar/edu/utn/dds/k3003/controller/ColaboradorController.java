@@ -4,6 +4,7 @@ import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.facades.dtos.ColaboradorDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.FormaDeColaborarEnum;
 import ar.edu.utn.dds.k3003.model.Colaborador;
+import ar.edu.utn.dds.k3003.model.FormasDTO;
 import ar.edu.utn.dds.k3003.model.PesosPuntos;
 import ar.edu.utn.dds.k3003.model.exceptions.ErrorConParametrosException;
 import io.javalin.http.Context;
@@ -52,10 +53,11 @@ public class ColaboradorController {
   }
 
   public void modificarColaboracion(Context context) {
-    Long id = context.pathParamAsClass("id", Long.class).get();    
-    FormaDeColaborarEnum[] list = context.bodyAsClass(FormaDeColaborarEnum[].class);//esta bien esto?
     try {
-      ColaboradorDTO colaboradorDTORta = this.fachada.modificar(id, List.of(list));//CUIDADO SI LE AGREGAMOS FUNCONABILIDAD A FORMADECOLABORARENUM
+      Long id = context.pathParamAsClass("id", Long.class).get();
+      List<FormaDeColaborarEnum> formasDeColaborar = context.bodyAsClass(FormasDTO.class).getFormas();
+
+      ColaboradorDTO colaboradorDTORta = this.fachada.modificar(id, formasDeColaborar);//CUIDADO SI LE AGREGAMOS FUNCONABILIDAD A FORMADECOLABORARENUM
       context.json(colaboradorDTORta);
       context.status(HttpStatus.CREATED);
     } catch (NoSuchElementException ex) {
