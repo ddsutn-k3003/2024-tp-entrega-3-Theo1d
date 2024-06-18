@@ -4,3 +4,52 @@
 Template para TP DDS 2024 - Entrega 1
 
 render:https://two024-tp-entrega-3-theo1d.onrender.com
+
+Enpoints:
+
+POST /colaboradores
+Agregar un nuevo colaborador
+
+Example:
+
+{
+  "id": 0,
+  "nombre": "string",
+  "formas": [
+    "DONADOR"
+  ]
+}
+
+GET/colaboradores/{id}
+Obtener un colaborador por id. (reemplazar {id} por el numero de colaborador)
+
+PATCH/colaboradores/{id}
+Modificar colaboracion
+
+Example:
+
+{
+  "formas": [
+    "DONADOR",
+    "TRANSPORTADOR"
+  ]
+}
+
+PUT/formula
+Alterar los pesos de los puntos
+
+Example:
+
+{
+  "pesosDonados": 1.0,
+  "viandasDistribuidas": 3.0,
+  "viandasDonadas": 5.0,
+  "tarjetasRepartidas": 1.0,
+  "heladerasActivas": 1.0
+}
+
+GET/colaboradores/{id}/puntos
+Obtener puntos de colaborador según el parámetro id (reemplazar {id} por el numero de colaborador)
+
+DELETE/clear
+Borrar todos los colaboradores y los pesos de los puntos.
